@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
 
 load_dotenv()
@@ -13,9 +13,21 @@ model = ChatGoogleGenerativeAI(
     google_api_key=api_key,  
 )
 
-messages = [
-    SystemMessage(content = "Solve the following math problem"),
-    HumanMessage(content = "What is 81 divided by 9")
-]
-response = model.invoke(messages)
-print("Answer by AI:",response.content)
+chat_history = []
+
+while True:
+    query = input("You :")
+    if query.lower() == "exit":
+        break
+    chat_history.append(HumanMessage(content=query))
+
+    result = model.invoke(chat_history)
+    response = result.content
+    chat_history.append(AIMessage(content = response))
+    print("Answer by AI:",response)
+
+print("--------Message History---------")
+for msg in chat_history:
+    role = "You" if isinstance(msg, HumanMessage) else "AI"
+    print(f"{role}: {msg.content}")
+
